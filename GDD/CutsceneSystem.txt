@@ -1,0 +1,209 @@
+/*
+    CUTSCENE SYSTEM - Unity C#
+    Versione: Scalabile e basata su ScriptableObject
+    Scopo: Gestire cutscene video e in-game in modo modulare e riutilizzabile
+    Autore: Simone Giammarinaro / ChatGPT
+
+    NOTE GENERALI:
+    - Tutte le cutscene derivano da AbstractCutscene.
+    - I dati di ogni cutscene sono contenuti in un CutsceneSO.
+    - CutsceneManager è un singleton e registra/avvia cutscene tramite ID.
+    - VideoAnimationCutscene è un esempio concreto di cutscene basata su MP4.
+    - Sistema scalabile grazie all'uso di ScriptableObject.
+*/
+
+using UnityEngine;
+using System;
+using UnityEngine.Video;
+using System.Collections.Generic;
+
+//---------------------------------------------
+// 1) SCRIPTABLEOBJECT ASTRATTO - CutsceneSO
+//---------------------------------------------
+/*
+    SO base per tutte le cutscene. Contiene solo l'ID della cutscene.
+    L'ID serve al manager per registrare e richiamare la cutscene.
+*/
+public abstract class CutsceneSO : ScriptableObject
+{
+    // ID univoco della cutscene
+    public string cutsceneID;
+}
+
+//---------------------------------------------
+// 2) SCRIPTABLEOBJECT SPECIFICO - VideoCutsceneSO
+//---------------------------------------------
+[CreateAssetMenu(fileName = "VideoCutsceneSO", menuName = "Cutscene/Video")]
+public class VideoCutsceneSO : CutsceneSO
+{
+    // VideoClip da riprodurre
+    public VideoClip clip;
+
+    // Permette al giocatore di saltare la cutscene
+    public bool skipAllowed = true;
+
+    // Ritardo opzionale prima dell'inizio della cutscene
+    public float delay = 0f;
+}
+
+//---------------------------------------------
+// 3) SCRIPTABLEOBJECT SPECIFICO - InGameCutsceneSO
+//---------------------------------------------
+[CreateAssetMenu(fileName = "InGameCutsceneSO", menuName = "Cutscene/InGame")]
+public class InGameCutsceneSO : CutsceneSO
+{
+    // Oggetti da attivare durante la cutscene
+    public GameObject[] objectsToActivate;
+
+    // Posizione della camera per la cutscene
+    public Transform cameraPosition;
+
+    // Durata totale della cutscene
+    public float duration = 3f;
+}
+
+//---------------------------------------------
+// 4) ABSTRACT CUTSCENE
+//---------------------------------------------
+/*
+    Classe base per tutte le cutscene.
+    Riceve in ingresso un CutsceneSO e un callback onComplete.
+    Contiene i metodi Play() e Finish() comuni a tutte le cutscene.
+*/
+public abstract class AbstractCutscene
+{
+    // Riferimento al SO contenente i dati della cutscene
+    protected CutsceneSO data;
+
+    // Callback da invocare al termine della cutscene
+    protected Action onComplete;
+
+    // ID della cutscene letto dal SO
+    public string CutsceneID => data.cutsceneID;
+
+    // Costruttore base
+    public AbstractCutscene(CutsceneSO data, Action onComplete = null)
+    {
+        this.data = data;
+        this.onComplete = onComplete;
+    }
+
+    // Metodo per avviare la cutscene
+    public void Play()
+    {
+        StartCutscene();
+    }
+
+    // Metodo astratto da implementare nelle classi figlie
+    protected abstract void StartCutscene();
+
+    // Metodo da chiamare alla fine della cutscene
+    protected void Finish()
+    {
+        onComplete?.Invoke();
+    }
+}
+
+//---------------------------------------------
+// 5) CLASSE FIGLIA - VideoAnimationCutscene
+//---------------------------------------------
+/*
+    Esempio di cutscene basata su MP4.
+    Riceve in ingresso un VideoCutsceneSO e un AbstractFader per fade-in/fade-out.
+*/
+public class VideoAnimationCutscene : AbstractCutscene
+{
+    private AbstractFader fader;
+    private VideoClip clip;
+
+    // Costruttore: inizializza clip e fader
+    public VideoAnimationCutscene(VideoCutsceneSO data, AbstractFader fader, Action onComplete = null)
+        : base(data, onComplete)
+    {
+        this.fader = fader;
+        this.clip = data.clip;
+    }
+
+    protected override void StartCutscene()
+    {
+        // Fade out prima di partire con il video
+        fader.FadeOut(() =>
+        {
+            Debug.Log("Riproduzione video: " + clip.name);
+
+            // Simulazione fine video con Timer.Delay (da implementare)
+            Timer.Delay(3f, () =>
+            {
+                // Fade in al termine del video
+                fader.FadeIn(() =>
+                {
+                    Finish(); // callback onComplete
+                });
+            });
+        });
+    }
+}
+
+//---------------------------------------------
+// 6) ABSTRACT FADER
+//---------------------------------------------
+/*
+    Astratto per gestire fade-in e fade-out.
+    Puoi implementare diverse strategie (CanvasGroup, animazioni, ecc.)
+*/
+public abstract class AbstractFader
+{
+    public abstract void FadeOut(Action onComplete);
+    public abstract void FadeIn(Action onComplete);
+}
+
+//---------------------------------------------
+// 7) CUTSCENE MANAGER (SINGLETON)
+//---------------------------------------------
+/*
+    Singleton che gestisce tutte le cutscene.
+    Contiene un dizionario <ID, AbstractCutscene> per avviare cutscene tramite ID.
+    Non conosce i dettagli interni delle cutscene.
+*/
+public class CutsceneManager : MonoBehaviour
+{
+    public static CutsceneManager Instance;
+
+    // Dizionario interno per registrare tutte le cutscene
+    private Dictionary<string, AbstractCutscene> cutsceneRegistry = new Dictionary<string, AbstractCutscene>();
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
+
+    // Registrazione di una cutscene
+    public void RegisterCutscene(AbstractCutscene cutscene)
+    {
+        if (!cutsceneRegistry.ContainsKey(cutscene.CutsceneID))
+            cutsceneRegistry.Add(cutscene.CutsceneID, cutscene);
+    }
+
+    // Avvio cutscene tramite ID
+    public void StartCutscene(string id)
+    {
+        if (!cutsceneRegistry.ContainsKey(id))
+        {
+            Debug.LogWarning("Cutscene non registrata: " + id);
+            return;
+        }
+
+        cutsceneRegistry[id].Play();
+    }
+}
+
+//---------------------------------------------
+// NOTE FINALI
+//---------------------------------------------
+/*
+    - Questo sistema permette di aggiungere nuove cutscene solo creando nuovi SO.
+    - La logica della cutscene (video, animazioni, ecc.) è separata dal manager.
+    - Callback onComplete permette di concatenare eventi senza intasare il manager.
+    - L'approccio è scalabile e modulare, pronto per essere esteso.
+*/
