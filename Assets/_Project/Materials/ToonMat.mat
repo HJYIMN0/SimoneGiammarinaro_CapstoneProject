@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MTL01
-  m_Shader: {fileID: -6465566751694194690, guid: c62c6c312f8fb804f9c8648003b0542a, type: 3}
+  m_Name: ToonMat
+  m_Shader: {fileID: -6465566751694194690, guid: 416421f204f22194998b8c15525e5335, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -48,10 +48,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Hatch:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -68,12 +64,12 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _SampleTexture2D_2a86b292db2b4a7cac8ee8c7dd9c2c7a_Texture_1_Texture2D:
-        m_Texture: {fileID: 2800000, guid: 90c855a377bb76344b8511a77fc4b288, type: 3}
+    - _SampleTexture2D_0270d46c3986492299afa374b599737b_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 83a6b22acc537c144b4df5d491eb1f13, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _SampleTexture2D_a35ecef6ab904917978023f979cc852f_Texture_1_Texture2D:
-        m_Texture: {fileID: 2800000, guid: 83a6b22acc537c144b4df5d491eb1f13, type: 3}
+    - _SampleTexture2D_4be762ca2b2840da86cc553be2e28276_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 90c855a377bb76344b8511a77fc4b288, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -134,7 +130,7 @@ Material:
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &2222272245000442381
+--- !u!114 &4847725806935309822
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
