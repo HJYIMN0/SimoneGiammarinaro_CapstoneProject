@@ -6,6 +6,8 @@ public abstract class AbstractInteractable : MonoBehaviour, IInteractable
 {
 
     [SerializeField] private float _interactionRadius = 1.5f;
+
+    protected GameManager _gameManager => GameManager.Instance;
     public virtual void OnClick(PlayerController player, RaycastHit hit)
     {
         player.MoveToPoint(this.transform.position);
@@ -26,5 +28,11 @@ public abstract class AbstractInteractable : MonoBehaviour, IInteractable
     {
         Debug.Log("Interacted with " + this.name);
         player.SetState(PlayerController.PlayerControlState.Interacting);
+    }
+
+    public void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, _interactionRadius);
     }
 }
