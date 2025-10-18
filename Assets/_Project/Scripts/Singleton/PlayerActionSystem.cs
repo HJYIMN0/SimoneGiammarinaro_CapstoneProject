@@ -8,15 +8,24 @@ public class PlayerActionSystem : GenericSingleton<PlayerActionSystem>
     private GameManager _gm;
 
     [Header("Energy Settings")]
-    private int sleepEnergyRecover = 20;
+    [SerializeField] private int sleepEnergyRecover = 20;
 
     [Header("Hunger Settings")]
-    private int energyToEat = 10;
-    private int hungerIncrease = 20;
+    [SerializeField] private int energyToEat = 10;
+    [SerializeField] private int hungerIncrease = 20;
 
     [Header("Hygiene Settings")]
-    private int energyToWash = 30;
-    private int hygieneIncrease = 40;
+    [SerializeField] private int energyToWash = 30;
+    [SerializeField] private int hygieneIncrease = 40;
+
+    [Header("Direction Settings")]
+    [SerializeField] private int energyToWork = 20;
+    [SerializeField] private int directionIncrease = 15;
+
+    [Header("Integrity Settings")]
+    [SerializeField] private int energyToRepair = 25;
+    [SerializeField] private int integrityIncrease = 30;
+
     private void Start()
     {
         _gm = GameManager.Instance;
@@ -39,7 +48,7 @@ public class PlayerActionSystem : GenericSingleton<PlayerActionSystem>
     {
         if (!CanEat()) return;
         _gm.IncreaseEnergy(-energyToEat);
-        _gm.IncreaseHunger(20);
+        _gm.IncreaseHunger(hungerIncrease);
     }
     
     public bool CanWash() => HasEnoughEnergy(energyToWash);
@@ -48,5 +57,28 @@ public class PlayerActionSystem : GenericSingleton<PlayerActionSystem>
         if (!CanWash()) return;
         _gm.IncreaseEnergy(-energyToWash);
         _gm.IncreaseHygiene(hygieneIncrease);
+    }
+
+    public bool CanWork() => HasEnoughEnergy(energyToWork);
+    public void Work()
+    {
+        if (!CanWork()) return;
+        _gm.IncreaseEnergy(-energyToWork);
+        _gm.IncreaseDirection(directionIncrease);
+    }
+
+    public void ConsultMap()
+    {
+        if (!CanWork()) return;
+        _gm.IncreaseEnergy(-energyToWork);
+        _gm.IncreaseDirection(-directionIncrease);
+    }
+
+    public bool CanRepair() => HasEnoughEnergy(energyToRepair);
+    public void Repair()
+    {
+        if (!CanRepair()) return;
+        _gm.IncreaseEnergy(-energyToRepair);
+        _gm.IncreaseIntegrity(integrityIncrease);
     }
 }

@@ -7,8 +7,8 @@ using UnityEngine.AI;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Camera _cam;
-    [SerializeField] private LayerMask _groundLayer;
-    [SerializeField] private LayerMask _interactableLayer;
+    //[SerializeField] private LayerMask _groundLayer;
+    //[SerializeField] private LayerMask _interactableLayer;
 
     private PlayerControlState _currentState = PlayerControlState.Idle;
     private NavMeshAgent _agent;
